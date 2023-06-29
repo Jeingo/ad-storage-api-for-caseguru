@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { ConfigType } from './configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AdController } from './ad/ad.controller';
+import { AdService } from './ad/ad.service';
+import { Ad } from './ad/entities/ad.entity';
+import { Photos } from './ad/entities/photos.entity';
 
 @Module({
   imports: [
@@ -23,8 +27,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([Ad, Photos]),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AdController],
+  providers: [AdService],
 })
 export class AppModule {}

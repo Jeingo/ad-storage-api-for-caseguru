@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { OptionalPhotos } from './optional.photos.entity';
+import { Photos } from './photos.entity';
 
 @Entity('ad')
 export class Ad {
@@ -15,12 +15,9 @@ export class Ad {
   @Column('integer')
   price: string;
 
-  @Column('varchar', { length: 100 })
-  main_photo_url: string;
-
-  @Column('timestamptz')
+  @Column('timestamp')
   createdAt: Date;
 
-  @OneToMany(() => OptionalPhotos, (optional_photos) => optional_photos.ad)
-  optional_photos: OptionalPhotos[];
+  @OneToMany(() => Photos, (photos) => photos.ad)
+  photos: Photos[];
 }
