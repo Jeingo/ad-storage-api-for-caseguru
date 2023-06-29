@@ -22,7 +22,7 @@ export class InputCreateAdDto {
   @Min(0)
   @IsInt()
   @IsNotEmpty()
-  price: string;
+  price: number;
 
   @ArrayMaxSize(3)
   @ArrayMinSize(1)

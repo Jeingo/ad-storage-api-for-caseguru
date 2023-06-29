@@ -13,7 +13,7 @@ export class Ad {
   description: string;
 
   @Column('integer')
-  price: string;
+  price: number;
 
   @Column('timestamp')
   createdAt: Date;

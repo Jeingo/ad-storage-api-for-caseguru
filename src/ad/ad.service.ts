@@ -1,10 +1,13 @@
 import { Ad } from './entities/ad.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InputCreateAdDto } from './dto/input.create.ad.dto';
 import { OutputCreatedAdDto } from './dto/output.created.ad.dto';
 import { Photo } from './entities/photos.entity';
+import { QueryAd } from '../utils/types/query.types';
+import { OutputAdDto } from './dto/output.ad.dto';
+import { photoToUrl } from '../utils/helper/toUrl';
 
 @Injectable()
 export class AdService {
@@ -37,6 +40,28 @@ export class AdService {
     await this.photoRepository.save(photosInDb);
 
     return { id: ad.id };
+  }
+
+  async getById(adId: number, query: QueryAd): Promise<OutputAdDto> {
+    const { fields } = query;
+
+    const adWithPhoto = await this.adRepository.findOne({
+      where: { id: adId },
+      relations: { photos: true },
+    });
+
+    if (!adWithPhoto) throw new NotFoundException();
+
+    return {
+      id: adWithPhoto.id,
+      title: adWithPhoto.title,
+      price: adWithPhoto.price,
+      mainPhoto: adWithPhoto.photos[0].url,
+      description: fields ? adWithPhoto.description : undefined,
+      optionalPhotos: fields
+        ? adWithPhoto.photos.map(photoToUrl).slice(1)
+        : undefined,
+    };
   }
 
   // async getAll(query: QueryAd): Promise<PaginatedType<OutputAdDto>> {

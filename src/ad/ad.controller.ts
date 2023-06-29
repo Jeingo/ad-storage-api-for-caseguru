@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
@@ -26,10 +27,19 @@ export class AdController {
     return this.adService.create(createAdDto);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async getAdById(
+    @Param('id') id: number,
+    @Query() query: QueryAd,
+  ): Promise<OutputAdDto> {
+    return this.adService.getById(id, query);
+  }
+
   // @HttpCode(HttpStatus.OK)
   // @Get()
   // async getAllAds(
-  //   @Query() query: QueryAd,
+  //   @Query() query: QueryAllAds,
   // ): Promise<PaginatedType<OutputAdDto>> {
   //   return this.adService.getAll(query);
   // }
