@@ -7,6 +7,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class InputCreateAdDto {
   @MaxLength(200)
@@ -24,6 +25,7 @@ export class InputCreateAdDto {
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty({ minItems: 1, maxItems: 3 })
   @ArrayMaxSize(3)
   @ArrayMinSize(1)
   photos: string[];
