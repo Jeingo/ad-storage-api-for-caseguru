@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { AdService } from './ad.service';
-import { QueryAd } from '../utils/types/query.types';
+import { QueryAd, QueryAllAds } from '../utils/types/query.types';
 import { PaginatedType } from '../utils/types/paginated.type';
 import { OutputAdDto } from './dto/output.ad.dto';
 import { InputCreateAdDto } from './dto/input.create.ad.dto';
@@ -36,11 +36,11 @@ export class AdController {
     return this.adService.getById(id, query);
   }
 
-  // @HttpCode(HttpStatus.OK)
-  // @Get()
-  // async getAllAds(
-  //   @Query() query: QueryAllAds,
-  // ): Promise<PaginatedType<OutputAdDto>> {
-  //   return this.adService.getAll(query);
-  // }
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async getAllAds(
+    @Query() query: QueryAllAds,
+  ): Promise<PaginatedType<OutputAdDto>> {
+    return this.adService.getAll(query);
+  }
 }

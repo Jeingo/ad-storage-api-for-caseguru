@@ -5,9 +5,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InputCreateAdDto } from './dto/input.create.ad.dto';
 import { OutputCreatedAdDto } from './dto/output.created.ad.dto';
 import { Photo } from './entities/photos.entity';
-import { QueryAd } from '../utils/types/query.types';
+import { Direction, QueryAd, QueryAllAds } from '../utils/types/query.types';
 import { OutputAdDto } from './dto/output.ad.dto';
-import { photoToUrl } from '../utils/helper/toUrl';
+import { photoToUrl } from '../utils/helper/to.url';
+import { PaginatedType } from '../utils/types/paginated.type';
+import { getPaginatedType } from '../utils/helper/get.paginated.type';
 
 @Injectable()
 export class AdService {
@@ -52,19 +54,43 @@ export class AdService {
 
     if (!adWithPhoto) throw new NotFoundException();
 
+    return this.toOutputAd(adWithPhoto, fields);
+  }
+
+  async getAll(query: QueryAllAds): Promise<PaginatedType<OutputAdDto>> {
+    const {
+      sortBy = 'createdAt',
+      sortDirection = Direction.DESC,
+      pageNumber = 1,
+      pageSize = 10,
+    } = query;
+
+    const skipNumber = (+pageNumber - 1) * +pageSize;
+    const direction = sortDirection.toUpperCase() as Direction;
+
+    const [ads, count] = await this.adRepository
+      .createQueryBuilder('ad')
+      .leftJoinAndSelect('ad.photos', 'photos')
+      .orderBy(`"${sortBy}"`, direction)
+      .limit(+pageSize)
+      .offset(skipNumber)
+      .getManyAndCount();
+
+    const outputAd = ads.map((ad) => this.toOutputAd(ad, false));
+
+    return getPaginatedType(outputAd, +pageSize, +pageNumber, count);
+  }
+
+  private toOutputAd(ad: Ad, withOptional: boolean): OutputAdDto {
     return {
-      id: adWithPhoto.id,
-      title: adWithPhoto.title,
-      price: adWithPhoto.price,
-      mainPhoto: adWithPhoto.photos[0].url,
-      description: fields ? adWithPhoto.description : undefined,
-      optionalPhotos: fields
-        ? adWithPhoto.photos.map(photoToUrl).slice(1)
+      id: ad.id,
+      title: ad.title,
+      price: ad.price,
+      mainPhoto: ad.photos[0].url,
+      description: withOptional ? ad.description : undefined,
+      optionalPhotos: withOptional
+        ? ad.photos.map(photoToUrl).slice(1)
         : undefined,
     };
   }
-
-  // async getAll(query: QueryAd): Promise<PaginatedType<OutputAdDto>> {
-  //   // return this.adRepository.find();
-  // }
 }
